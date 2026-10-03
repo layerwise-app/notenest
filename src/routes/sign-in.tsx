@@ -50,7 +50,7 @@ function SignInPage() {
       });
       if (error) throw new Error(error.message ?? 'Failed to sign in');
     },
-    onSuccess: () => navigate({ to: '/dashboard' })
+    onSuccess: () => navigate({ to: '/' })
   });
 
   return (
@@ -59,7 +59,7 @@ function SignInPage() {
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
           <CardDescription>
-            Enter your email and we’ll send you a one-time sign-in code.
+            Sign in to sync your notes across devices. Your local notes stay safe either way.
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col gap-6'>

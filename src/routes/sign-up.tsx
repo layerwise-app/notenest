@@ -34,7 +34,7 @@ function SignUpPage() {
       });
       if (error) throw new Error(error.message ?? 'Failed to create account');
     },
-    onSuccess: () => navigate({ to: '/dashboard' })
+    onSuccess: () => navigate({ to: '/' })
   });
 
   return (
@@ -43,7 +43,7 @@ function SignUpPage() {
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
           <CardDescription>
-            Sign up with your email and password.
+            Create an account to keep your notes in sync across devices.
           </CardDescription>
         </CardHeader>
         <CardContent>
