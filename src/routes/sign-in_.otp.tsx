@@ -1,25 +1,11 @@
-import { useState } from 'react';
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useNavigate
-} from '@tanstack/react-router';
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '~/lib/auth-client';
+import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { AuthShell, FormError } from '~/components/auth/auth-shell';
+import { SubmitButton } from '~/components/auth/submit-button';
 import { Button } from '~/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '~/components/ui/card';
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot
-} from '~/components/ui/input-otp';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '~/components/ui/input-otp';
+import { authClient } from '~/lib/auth-client';
 
 export const Route = createFileRoute('/sign-in_/otp')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -28,6 +14,7 @@ export const Route = createFileRoute('/sign-in_/otp')({
   beforeLoad: ({ search }) => {
     if (!search.email) throw redirect({ to: '/sign-in' });
   },
+  head: () => ({ meta: [{ title: 'Check your email — NoteNest' }] }),
   component: EmailOtpPage
 });
 
@@ -39,92 +26,77 @@ function EmailOtpPage() {
   const verifyOtp = useMutation({
     mutationFn: async () => {
       const { error } = await authClient.signIn.emailOtp({ email, otp });
-      if (error) throw new Error(error.message ?? 'Invalid code');
+      if (error) throw new Error(error.message ?? 'That code didn’t work.');
     },
-    onSuccess: () => navigate({ to: '/' })
+    onSuccess: () => navigate({ to: '/notes' })
   });
 
   const resendOtp = useMutation({
     mutationFn: async () => {
-      const { error } = await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: 'sign-in'
-      });
-      if (error) throw new Error(error.message ?? 'Failed to resend code');
+      const { error } = await authClient.emailOtp.sendVerificationOtp({ email, type: 'sign-in' });
+      if (error) throw new Error(error.message ?? 'Couldn’t resend the code.');
     }
   });
 
   return (
-    <div className='flex min-h-svh items-center justify-center p-4'>
-      <Card className='w-full max-w-sm'>
-        <CardHeader>
-          <CardTitle>Check your email</CardTitle>
-          <CardDescription>
-            Enter the six-digit code we sent to {email}.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='flex flex-col gap-6'>
-          <form
-            className='flex flex-col gap-4'
-            onSubmit={(event) => {
-              event.preventDefault();
-              verifyOtp.mutate();
-            }}
-          >
-            <InputOTP
-              autoFocus
-              autoComplete='one-time-code'
-              containerClassName='w-full'
-              maxLength={6}
-              value={otp}
-              onChange={(value) => {
-                setOtp(value);
-                verifyOtp.reset();
-              }}
-            >
-              <InputOTPGroup className='w-full'>
-                {Array.from({ length: 6 }, (_, index) => (
-                  <InputOTPSlot key={index} index={index} className='flex-1' />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
-            {verifyOtp.error ? (
-              <p className='text-sm text-destructive'>
-                {verifyOtp.error.message}
-              </p>
-            ) : null}
-            <Button
-              type='submit'
-              disabled={otp.length < 6 || verifyOtp.isPending}
-            >
-              {verifyOtp.isPending ? 'Verifying…' : 'Verify and sign in'}
-            </Button>
-          </form>
-          <div className='flex flex-col items-center gap-2 text-sm'>
-            <Button
-              type='button'
-              variant='link'
-              className='h-auto p-0'
-              disabled={resendOtp.isPending}
-              onClick={() => resendOtp.mutate()}
-            >
-              {resendOtp.isPending
-                ? 'Sending…'
-                : resendOtp.isSuccess
-                  ? 'Code sent'
-                  : 'Resend code'}
-            </Button>
-            {resendOtp.error ? (
-              <p className='text-center text-sm text-destructive'>
-                {resendOtp.error.message}
-              </p>
-            ) : null}
-            <Link to='/sign-in' className='text-muted-foreground underline'>
-              Use a different email
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthShell
+      title='Check your email'
+      description={
+        <>
+          Enter the 6-digit code sent to <span className='font-medium text-foreground'>{email}</span>.
+        </>
+      }
+      footer={
+        <Link to='/sign-in' className='underline-offset-4 hover:text-foreground hover:underline'>
+          Use a different email
+        </Link>
+      }
+    >
+      <form
+        className='grid gap-4'
+        onSubmit={(event) => {
+          event.preventDefault();
+          verifyOtp.mutate();
+        }}
+      >
+        <InputOTP
+          autoFocus
+          autoComplete='one-time-code'
+          containerClassName='w-full'
+          maxLength={6}
+          value={otp}
+          aria-label='Sign-in code'
+          onChange={(value) => {
+            setOtp(value);
+            verifyOtp.reset();
+          }}
+        >
+          <InputOTPGroup className='w-full'>
+            {Array.from({ length: 6 }, (_, index) => (
+              <InputOTPSlot key={index} index={index} className='h-11 flex-1 text-base' />
+            ))}
+          </InputOTPGroup>
+        </InputOTP>
+        <FormError error={verifyOtp.error} />
+        <SubmitButton isPending={verifyOtp.isPending} disabled={otp.length < 6}>
+          Sign in
+        </SubmitButton>
+      </form>
+      <div className='mt-4 flex items-center justify-center gap-2 text-[13px] text-muted-foreground'>
+        {resendOtp.isSuccess ? <span>Code sent.</span> : <span>Didn’t get it?</span>}
+        <Button
+          type='button'
+          variant='link'
+          className='h-auto p-0 text-[13px]'
+          disabled={resendOtp.isPending}
+          onClick={() => resendOtp.mutate()}
+        >
+          Resend
+        </Button>
+      </div>
+      <div className='mt-2 text-center'>
+        <FormError error={resendOtp.error} />
+      </div>
+    </AuthShell>
   );
 }

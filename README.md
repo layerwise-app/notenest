@@ -1,14 +1,35 @@
-# Layerwise project
+# NoteNest
 
-This is the starter used for new Layerwise projects. It is a full-stack React
-app built with TanStack Start and deployed to Cloudflare Workers. The template
-includes Better Auth, a D1 database with Drizzle ORM, Tailwind CSS, shadcn/ui,
-and the Layerwise preview bridge.
+A calm Markdown notebook. Start writing at `/notes` without an account; notes
+live in the browser and sync across devices once you sign in.
+
+## Features
+
+- Three-pane notebook: sidebar, note list, editor. Stacked navigation on phones.
+- Markdown editor with live syntax highlighting, a formatting toolbar, and
+  shortcuts (⌘B, ⌘I, ⌥⌘1–3, lists, checklists, quotes, code, links).
+- Edit, split, and preview modes (⌘/), plus focus mode (⌘⇧F).
+- `#tags` parsed from note text, with counts and filtering in the sidebar.
+- Checklists you can tick in preview; progress shows in the note list.
+- `[[Wiki links]]` with autocomplete, create-on-click, and backlinks.
+- Command palette (⌘K) for notes, actions, views, and folders.
+- Note info: word count, reading time, outline, created and edited dates.
+- Export as `.md`, copy Markdown, or print to PDF.
+- Templates (meeting notes, daily journal, project brief) and a Today note.
+- Folders, pinning, search, sorting, and Recently deleted with restore.
+- Local autosave; signed-in sync to D1 through `src/lib/notes.functions.ts`.
+
+## Routes
+
+- `/`: landing page
+- `/notes`: the notebook (`/dashboard` redirects here)
+- `/sign-in`, `/sign-in/otp`, `/sign-up`, `/forgot-password`: account pages
 
 ## Commands
 
 ```bash
 pnpm dev
+pnpm test
 pnpm check-types
 pnpm build
 pnpm auth:generate
@@ -24,13 +45,14 @@ during publishing.
 
 ## Important files
 
-- `src/routes/`: TanStack Router file routes
+- `src/components/notes/`: notebook UI (`NotesApp.tsx` is the entry point)
+- `src/components/landing/`: landing page sections
+- `src/hooks/use-notebook.ts`: local storage, merge, and sync
+- `src/lib/`: pure note helpers (tags, links, Markdown, templates, sorting)
+- `src/lib/notes.functions.ts`: sync server functions and input validation
 - `src/lib/auth.ts`: Better Auth server configuration
-- `src/lib/auth.functions.ts`: client-callable server functions
 - `src/db/schema.ts`: Drizzle schema
-- `vite.config.ts`: Cloudflare, TanStack Start, React, Tailwind, and Layerwise
-  plugins
-- `wrangler.jsonc`: local Worker and D1 bindings
+- `tests/`: `node --test` suites for the helpers
 
 Keep secrets server-side. Variables prefixed with `VITE_` are included in the
 browser bundle. `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `AUTH_EMAIL_URL`

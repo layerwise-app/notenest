@@ -116,12 +116,16 @@ export function snapshotsEqual(left: NotesSnapshot, right: NotesSnapshot): boole
   return recordsEqual(left.notes, right.notes) && recordsEqual(left.folders, right.folders);
 }
 
-export function makeNote(title = 'Untitled', folderId: string | null = null): Note {
+export function makeNote(
+  title = '',
+  folderId: string | null = null,
+  content = ''
+): Note {
   const now = Date.now();
   return {
     id: crypto.randomUUID(),
     title,
-    content: '',
+    content,
     folderId,
     pinned: false,
     createdAt: now,

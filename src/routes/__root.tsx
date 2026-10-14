@@ -15,6 +15,9 @@ import { TooltipProvider } from '~/components/ui/tooltip';
 import { seo } from '~/utils/seo';
 import '~/styles/app.css';
 
+const FONTS_URL =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap';
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
@@ -22,12 +25,26 @@ export const Route = createRootRouteWithContext<{
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'theme-color', content: '#fbf8f3' },
       ...seo({
-        title: 'Margin — a quieter place to think',
-        description: 'A calm, local-first notebook for thoughts, lists, and everything in between.'
+        title: 'NoteNest — a calm Markdown notebook',
+        description:
+          'A Markdown notebook with tags, linked notes, and checklists. Works offline and syncs when you sign in.'
       })
     ],
-    links: [{ rel: 'icon', href: '/favicon.ico' }]
+    links: [
+      { rel: 'icon', href: '/favicon.ico', sizes: '32x32' },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      { rel: 'manifest', href: '/site.webmanifest' },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous'
+      },
+      { rel: 'stylesheet', href: FONTS_URL }
+    ]
   }),
   errorComponent: (props) => (
     <RootDocument>
@@ -55,11 +72,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <ThemeProvider
           attribute='class'
-          defaultTheme='system'
-          enableSystem
+          defaultTheme='light'
+          enableSystem={false}
           disableTransitionOnChange
         >
-          <TooltipProvider>
+          <TooltipProvider delayDuration={350}>
             {children}
             <Toaster />
           </TooltipProvider>

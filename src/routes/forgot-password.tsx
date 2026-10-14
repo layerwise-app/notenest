@@ -1,26 +1,24 @@
-import { useState } from 'react';
-import { createFileRoute, Link } from '@tanstack/react-router';
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '~/lib/auth-client';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { AuthShell, FormError } from '~/components/auth/auth-shell';
+import { SubmitButton } from '~/components/auth/submit-button';
 import { Button } from '~/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '~/components/ui/input-otp';
 import { Label } from '~/components/ui/label';
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot
-} from '~/components/ui/input-otp';
+import { authClient } from '~/lib/auth-client';
 
 export const Route = createFileRoute('/forgot-password')({
+  head: () => ({ meta: [{ title: 'Reset password — NoteNest' }] }),
   component: ForgotPasswordPage
 });
+
+const backToSignIn = (
+  <Link to='/sign-in' className='underline-offset-4 hover:text-foreground hover:underline'>
+    Back to sign in
+  </Link>
+);
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -31,176 +29,135 @@ function ForgotPasswordPage() {
 
   const requestReset = useMutation({
     mutationFn: async () => {
-      const { error } = await authClient.emailOtp.requestPasswordReset({
-        email
-      });
-      if (error) throw new Error(error.message ?? 'Failed to send reset code');
+      const { error } = await authClient.emailOtp.requestPasswordReset({ email });
+      if (error) throw new Error(error.message ?? 'Couldn’t send a reset code.');
     }
   });
 
   const resetPassword = useMutation({
     mutationFn: async () => {
-      const { error } = await authClient.emailOtp.resetPassword({
-        email,
-        otp,
-        password
-      });
-      if (error) throw new Error(error.message ?? 'Failed to reset password');
+      const { error } = await authClient.emailOtp.resetPassword({ email, otp, password });
+      if (error) throw new Error(error.message ?? 'Couldn’t reset your password.');
     }
   });
 
   if (resetPassword.isSuccess) {
     return (
-      <div className='flex min-h-svh items-center justify-center p-4'>
-        <Card className='w-full max-w-sm'>
-          <CardHeader>
-            <CardTitle>Password reset</CardTitle>
-            <CardDescription>
-              Your password has been updated. You can now sign in.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className='w-full'>
-              <Link to='/sign-in'>Back to sign in</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AuthShell title='Password updated' description='Sign in with your new password.'>
+        <Button asChild className='w-full'>
+          <Link to='/sign-in'>Sign in</Link>
+        </Button>
+      </AuthShell>
     );
   }
 
   return (
-    <div className='flex min-h-svh items-center justify-center p-4'>
-      <Card className='w-full max-w-sm'>
-        <CardHeader>
-          <CardTitle>Reset your password</CardTitle>
-          <CardDescription>
-            We’ll send a six-digit reset code to your email.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='flex flex-col gap-4'>
-          <form
-            className='flex flex-col gap-4'
-            onSubmit={(event) => {
-              event.preventDefault();
-              setOtp('');
-              resetPassword.reset();
-              requestReset.mutate();
-            }}
-          >
-            <div className='flex flex-col gap-2'>
-              <Label htmlFor='email'>Email</Label>
-              <div className='flex gap-2'>
-                <Input
-                  id='email'
-                  type='email'
-                  autoComplete='email'
-                  required
-                  value={email}
-                  onChange={(event) => {
-                    setEmail(event.target.value);
-                    setOtp('');
-                    requestReset.reset();
-                    resetPassword.reset();
-                  }}
-                />
-                <Button type='submit' disabled={requestReset.isPending}>
-                  {requestReset.isPending
-                    ? 'Sending…'
-                    : requestReset.isSuccess
-                      ? 'Resend code'
-                      : 'Send code'}
-                </Button>
-              </div>
-            </div>
-            {requestReset.error ? (
-              <p className='text-sm text-destructive'>
-                {requestReset.error.message}
-              </p>
-            ) : null}
-          </form>
-          {requestReset.isSuccess ? (
-            <form
-              className='flex flex-col gap-4'
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (!passwordsMatch) return;
-                resetPassword.mutate();
+    <AuthShell title='Reset password' description='We’ll email you a 6-digit code.' footer={backToSignIn}>
+      <form
+        className='grid gap-4'
+        onSubmit={(event) => {
+          event.preventDefault();
+          setOtp('');
+          resetPassword.reset();
+          requestReset.mutate();
+        }}
+      >
+        <div className='grid gap-2'>
+          <Label htmlFor='email'>Email</Label>
+          <div className='flex gap-2'>
+            <Input
+              id='email'
+              type='email'
+              autoComplete='email'
+              autoFocus
+              required
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setOtp('');
+                requestReset.reset();
+                resetPassword.reset();
+              }}
+            />
+            <SubmitButton
+              isPending={requestReset.isPending}
+              variant={requestReset.isSuccess ? 'outline' : 'default'}
+            >
+              {requestReset.isSuccess ? 'Resend' : 'Send code'}
+            </SubmitButton>
+          </div>
+        </div>
+        <FormError error={requestReset.error} />
+      </form>
+
+      {requestReset.isSuccess ? (
+        <form
+          className='mt-5 grid gap-4 border-t border-border pt-5'
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (passwordsMatch) resetPassword.mutate();
+          }}
+        >
+          <div className='grid gap-2'>
+            <Label htmlFor='reset-code'>Code</Label>
+            <InputOTP
+              id='reset-code'
+              maxLength={6}
+              value={otp}
+              containerClassName='w-full'
+              onChange={(value) => {
+                setOtp(value);
+                resetPassword.reset();
               }}
             >
-              <p className='text-sm text-muted-foreground'>
-                Enter the code sent to {email} and choose a new password.
-              </p>
-              <InputOTP
-                maxLength={6}
-                value={otp}
-                onChange={(value) => {
-                  setOtp(value);
-                  resetPassword.reset();
-                }}
-              >
-                <InputOTPGroup>
-                  {Array.from({ length: 6 }, (_, index) => (
-                    <InputOTPSlot key={index} index={index} />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='password'>New password</Label>
-                <Input
-                  id='password'
-                  type='password'
-                  autoComplete='new-password'
-                  minLength={8}
-                  required
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    resetPassword.reset();
-                  }}
-                />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor='confirm-password'>Confirm new password</Label>
-                <Input
-                  id='confirm-password'
-                  type='password'
-                  autoComplete='new-password'
-                  minLength={8}
-                  required
-                  aria-invalid={confirmPassword ? !passwordsMatch : undefined}
-                  value={confirmPassword}
-                  onChange={(event) => {
-                    setConfirmPassword(event.target.value);
-                    resetPassword.reset();
-                  }}
-                />
-                {confirmPassword && !passwordsMatch ? (
-                  <p className='text-sm text-destructive'>
-                    Passwords do not match.
-                  </p>
-                ) : null}
-              </div>
-              {resetPassword.error ? (
-                <p className='text-sm text-destructive'>
-                  {resetPassword.error.message}
-                </p>
-              ) : null}
-              <Button
-                type='submit'
-                disabled={
-                  otp.length < 6 || !passwordsMatch || resetPassword.isPending
-                }
-              >
-                {resetPassword.isPending ? 'Resetting…' : 'Reset password'}
-              </Button>
-            </form>
-          ) : null}
-          <Button variant='link' asChild className='h-auto p-0'>
-            <Link to='/sign-in'>Back to sign in</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+              <InputOTPGroup className='w-full'>
+                {Array.from({ length: 6 }, (_, index) => (
+                  <InputOTPSlot key={index} index={index} className='h-11 flex-1 text-base' />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+          <div className='grid gap-2'>
+            <Label htmlFor='password'>New password</Label>
+            <Input
+              id='password'
+              type='password'
+              autoComplete='new-password'
+              minLength={8}
+              required
+              placeholder='At least 8 characters'
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                resetPassword.reset();
+              }}
+            />
+          </div>
+          <div className='grid gap-2'>
+            <Label htmlFor='confirm-password'>Confirm new password</Label>
+            <Input
+              id='confirm-password'
+              type='password'
+              autoComplete='new-password'
+              minLength={8}
+              required
+              aria-invalid={confirmPassword ? !passwordsMatch : undefined}
+              value={confirmPassword}
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+                resetPassword.reset();
+              }}
+            />
+            {confirmPassword && !passwordsMatch ? (
+              <p className='text-[13px] text-destructive'>Passwords don’t match.</p>
+            ) : null}
+          </div>
+          <FormError error={resetPassword.error} />
+          <SubmitButton isPending={resetPassword.isPending} disabled={otp.length < 6 || !passwordsMatch}>
+            Reset password
+          </SubmitButton>
+        </form>
+      ) : null}
+    </AuthShell>
   );
 }
