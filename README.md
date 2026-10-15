@@ -1,5 +1,12 @@
 # NoteNest
 
+<a href="https://layerwise.app">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://layerwise.app/powered-by-dark.png" />
+    <img src="https://layerwise.app/powered-by.png" alt="Powered by Layerwise" width="320" />
+  </picture>
+</a>
+
 A calm Markdown notebook. Start writing at `/notes` without an account; notes
 live in the browser and sync across devices once you sign in.
 

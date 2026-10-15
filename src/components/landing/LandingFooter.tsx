@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { NoteNestLogo } from '~/components/brand';
+import { PoweredByLayerwise } from '~/components/powered-by-layerwise';
 import { Button } from '~/components/ui/button';
 
 export function FinalCta() {
@@ -38,6 +39,9 @@ export function LandingFooter() {
             Sign in
           </Link>
         </nav>
+      </div>
+      <div className='mx-auto flex max-w-6xl justify-center px-4 pb-8 sm:px-6'>
+        <PoweredByLayerwise />
       </div>
     </footer>
   );
