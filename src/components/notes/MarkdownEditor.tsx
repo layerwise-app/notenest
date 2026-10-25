@@ -19,6 +19,8 @@ export type MarkdownEditorHandle = {
   /** Inserts `[[` at the caret and opens the note picker. */
   startWikiLink: () => void;
   revealLine: (line: number) => void;
+  /** Inserts text at the caret if `noteId` is still open; returns false otherwise. */
+  insertAtCaret: (noteId: string, text: string) => boolean;
 };
 
 type MarkdownEditorProps = {
@@ -28,6 +30,8 @@ type MarkdownEditorProps = {
   notes: Note[];
   currentNoteId: string;
   onCreateNote: (title: string) => void;
+  /** Files pasted or dropped into the editor. */
+  onFiles: (files: File[]) => void;
   variant: 'prose' | 'source';
 };
 
@@ -71,6 +75,7 @@ export function MarkdownEditor({
   notes,
   currentNoteId,
   onCreateNote,
+  onFiles,
   variant
 }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -141,8 +146,39 @@ export function MarkdownEditor({
       const offset = element.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
       const top = scroller.scrollTop + offset + caretCoordinates(element, index).top - 120;
       scroller.scrollTo({ top, behavior: 'smooth' });
+    },
+    insertAtCaret: (noteId: string, text: string) => {
+      const current = state();
+      if (!current || noteId !== currentNoteId) return false;
+      // Keep inserted attachments on their own lines.
+      const before = current.text.slice(0, current.start);
+      const after = current.text.slice(current.end);
+      const block =
+        (before && !before.endsWith('\n') ? '\n' : '') + text + (after && !after.startsWith('\n') ? '\n' : '');
+      const caret = before.length + block.length;
+      apply({
+        text: before + block + after,
+        start: caret,
+        end: caret
+      });
+      return true;
     }
   }));
+
+  function handlePaste(event: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const { files, types } = event.clipboardData;
+    // Office apps and web pages put a rendered image next to the text; paste
+    // the text then. Screenshots and copied images arrive as files only.
+    if (!files.length || (types.includes('text/plain') && types.includes('text/html'))) return;
+    event.preventDefault();
+    onFiles(Array.from(files));
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLTextAreaElement>) {
+    if (!event.dataTransfer.files.length) return;
+    event.preventDefault();
+    onFiles(Array.from(event.dataTransfer.files));
+  }
 
   const options = suggest ? suggestOptions(notes, currentNoteId, suggest.query) : [];
   const open = suggest !== null && options.length > 0;
@@ -234,6 +270,11 @@ export function MarkdownEditor({
         }}
         onClick={updateSuggest}
         onBlur={() => setSuggest(null)}
+        onPaste={handlePaste}
+        onDragOver={(event) => {
+          if (event.dataTransfer.types.includes('Files')) event.preventDefault();
+        }}
+        onDrop={handleDrop}
         placeholder='Start writing…'
         aria-label='Note body (Markdown)'
         spellCheck

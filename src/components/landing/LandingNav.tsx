@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { NoteNestLogo } from '~/components/brand';
+import { GitHubButton } from '~/components/landing/GitHubButton';
 import { Button } from '~/components/ui/button';
 
 const sections = [
@@ -34,6 +35,7 @@ export function LandingNav() {
           ))}
         </div>
         <div className='ml-auto flex items-center gap-1.5'>
+          <GitHubButton />
           <Button asChild variant='ghost' className='h-9 px-3 text-[14px]'>
             <Link to='/sign-in'>Sign in</Link>
           </Button>

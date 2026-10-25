@@ -1,12 +1,14 @@
-import { Check } from 'lucide-react';
+import { Check, ImageOff, Paperclip } from 'lucide-react';
+import { useState } from 'react';
 import type * as React from 'react';
 import { parseMarkdown } from '~/lib/markdown';
 import type { Block, Inline, ListItem } from '~/lib/markdown';
+import { filePath } from '~/lib/note-files';
 import { cn } from '~/lib/utils';
 
 // Renders the parsed Markdown tree with React elements only. React escapes
 // all text and `parseMarkdown` only emits safe link targets, so note content
-// can't inject HTML.
+// can't inject HTML. Attachments are built from validated file IDs.
 
 export type MarkdownActions = {
   /** Whether a wiki link target resolves to an existing note. */
@@ -194,6 +196,7 @@ function inlineText(nodes: Inline[]): string {
   return nodes
     .map((node) => {
       if (node.type === 'text' || node.type === 'code') return node.text;
+      if (node.type === 'image') return node.alt;
       if (node.type === 'tag') return node.text;
       if (node.type === 'wikilink') return node.label;
       if (node.type === 'br') return ' ';
@@ -251,6 +254,19 @@ function InlineView({ nodes, actions }: { nodes: Inline[]; actions: MarkdownActi
             <InlineView nodes={node.children} actions={actions} />
           </a>
         );
+      case 'image':
+        return <NoteImage key={`${index}-${node.fileId}`} fileId={node.fileId} alt={node.alt} />;
+      case 'file':
+        return (
+          <a
+            key={index}
+            href={filePath(node.fileId, true)}
+            className='text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary'
+          >
+            <Paperclip className='mr-1 inline size-[0.85em] align-[-0.05em]' aria-hidden='true' />
+            <InlineView nodes={node.children} actions={actions} />
+          </a>
+        );
       case 'wikilink': {
         const exists = actions.hasNote?.(node.target) ?? true;
         return (
@@ -284,4 +300,26 @@ function InlineView({ nodes, actions }: { nodes: Inline[]; actions: MarkdownActi
         );
     }
   });
+}
+
+/** An attached image. The file route answers 401/404 when it can't be shown. */
+function NoteImage({ fileId, alt }: { fileId: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <span className='my-2 inline-flex items-center gap-1.5 rounded-md bg-muted px-2 py-1 font-sans text-[13px] text-muted-foreground'>
+        <ImageOff className='size-3.5' aria-hidden='true' />
+        {alt || 'Image'} isn’t available
+      </span>
+    );
+  }
+  return (
+    <img
+      src={filePath(fileId)}
+      alt={alt}
+      loading='lazy'
+      onError={() => setFailed(true)}
+      className='my-3 block h-auto max-w-full rounded-lg border border-border'
+    />
+  );
 }

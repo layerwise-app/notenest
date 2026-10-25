@@ -66,6 +66,9 @@ export type NoteActions = {
   openNote: (id: string) => void;
   openLink: (title: string) => void;
   createLinkedNote: (title: string) => void;
+  /** False (after telling the user why) when attachments aren't available. */
+  canAttach: () => boolean;
+  attachFiles: (files: File[]) => void;
   showTag: (tag: string) => void;
   showFolder: (folderId: string) => void;
   back: () => void;
@@ -101,6 +104,7 @@ export function NoteEditor({
   actions
 }: NoteEditorProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isWide = useMediaQuery('(min-width: 1280px)');
   const canSplit = useMediaQuery('(min-width: 640px)');
   const trashed = note.deletedAt !== null;
@@ -135,6 +139,9 @@ export function NoteEditor({
       notes={notes}
       currentNoteId={note.id}
       onCreateNote={actions.createLinkedNote}
+      onFiles={(files) => {
+        if (actions.canAttach()) actions.attachFiles(files);
+      }}
       variant={variant}
     />
   );
@@ -245,6 +252,20 @@ export function NoteEditor({
           <EditorToolbar
             onFormat={(command) => editorRef.current?.format(command)}
             onWikiLink={() => editorRef.current?.startWikiLink()}
+            onAttach={() => {
+              if (actions.canAttach()) fileInputRef.current?.click();
+            }}
+          />
+          <input
+            ref={fileInputRef}
+            type='file'
+            multiple
+            hidden
+            onChange={(event) => {
+              const files = Array.from(event.target.files ?? []);
+              event.target.value = '';
+              if (files.length) actions.attachFiles(files);
+            }}
           />
         </div>
       ) : null}

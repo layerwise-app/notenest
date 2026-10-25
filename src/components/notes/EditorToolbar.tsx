@@ -10,6 +10,7 @@ import {
   List,
   ListChecks,
   ListOrdered,
+  Paperclip,
   SquareCode,
   Strikethrough,
   TextQuote
@@ -31,6 +32,7 @@ import { cn } from '~/lib/utils';
 type ToolbarProps = {
   onFormat: (command: FormatCommandId) => void;
   onWikiLink: () => void;
+  onAttach: () => void;
   className?: string;
 };
 
@@ -54,7 +56,7 @@ const GROUPS: [FormatCommandId, React.ComponentType<{ className?: string }>][][]
 
 const HEADINGS: FormatCommandId[] = ['h1', 'h2', 'h3'];
 
-export function EditorToolbar({ onFormat, onWikiLink, className }: ToolbarProps) {
+export function EditorToolbar({ onFormat, onWikiLink, onAttach, className }: ToolbarProps) {
   // Buttons keep focus in the textarea so the selection survives the click.
   const keepSelection = (event: React.MouseEvent) => event.preventDefault();
 
@@ -111,6 +113,9 @@ export function EditorToolbar({ onFormat, onWikiLink, className }: ToolbarProps)
       ))}
       <IconButton label='Link to note' shortcut='[[' onMouseDown={keepSelection} onClick={onWikiLink}>
         <Brackets className='size-4' />
+      </IconButton>
+      <IconButton label='Attach file' onMouseDown={keepSelection} onClick={onAttach}>
+        <Paperclip className='size-4' />
       </IconButton>
     </div>
   );

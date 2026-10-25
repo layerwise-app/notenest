@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { cloudflare } from '@cloudflare/vite-plugin';
-import { layerwise } from '@layerwise/vite';
+import { layerwise, layerwiseStorageWorker } from '@layerwise/vite';
 
 export default defineConfig({
   server: {
@@ -27,7 +27,10 @@ export default defineConfig({
   plugins: [
     layerwise(),
     tailwindcss(),
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    cloudflare({
+      viteEnvironment: { name: 'ssr' },
+      auxiliaryWorkers: [layerwiseStorageWorker()]
+    }),
     tanstackStart(),
     viteReact()
   ]

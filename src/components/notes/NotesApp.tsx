@@ -1,5 +1,7 @@
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { uploadAttachments } from '~/components/notes/attachments';
 import { CommandPalette } from '~/components/notes/CommandPalette';
 import { FolderDialogs } from '~/components/notes/FolderDialogs';
 import type { FolderDialogState } from '~/components/notes/FolderDialogs';
@@ -52,6 +54,7 @@ function NotebookWorkspace({ notebook }: { notebook: Notebook }) {
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const editorRef = useRef<MarkdownEditorHandle>(null);
   const pendingFocus = useRef<'title' | 'body' | null>(null);
+  const navigate = useNavigate();
   const twoPane = useMediaQuery('(min-width: 768px)');
   const wide = useMediaQuery('(min-width: 1024px)');
 
@@ -171,6 +174,19 @@ function NotebookWorkspace({ notebook }: { notebook: Notebook }) {
     toast('Moved to Recently deleted', { action: { label: 'Undo', onClick: () => restoreNote(note) } });
   }
 
+  function canAttach() {
+    if (notebook.user) return true;
+    toast('Attachments need sign-in.', { action: { label: 'Sign in', onClick: () => void navigate({ to: '/sign-in' }) } });
+    return false;
+  }
+
+  // Inserts at the caret, or appends if the writer has moved to another note.
+  function attachFiles(note: Note, files: File[]) {
+    void uploadAttachments(note.id, files).then((markdown) => {
+      if (markdown && !editorRef.current?.insertAtCaret(note.id, markdown)) notebook.appendToNote(note.id, markdown);
+    });
+  }
+
   function cycleMode() {
     patchPrefs({ mode: MODE_CYCLE[(MODE_CYCLE.indexOf(mode) + 1) % MODE_CYCLE.length] });
   }
@@ -191,6 +207,8 @@ function NotebookWorkspace({ notebook }: { notebook: Notebook }) {
         },
         openLink,
         createLinkedNote,
+        canAttach,
+        attachFiles: (files) => attachFiles(current, files),
         showTag: (name) => changeView(`tag:${name}`),
         showFolder: (folderId) => changeView(`folder:${folderId}`),
         back: () => setMobilePane('list')

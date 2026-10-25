@@ -167,6 +167,18 @@ export function useNotebook() {
     }));
   }
 
+  /** Appends text as a new paragraph, for edits that arrive after the note was closed. */
+  function appendToNote(noteId: string, text: string) {
+    setSnapshot((current) => ({
+      ...current,
+      notes: current.notes.map((note) => {
+        if (note.id !== noteId) return note;
+        const body = note.content.replace(/\s+$/, '');
+        return { ...note, content: body ? `${body}\n\n${text}` : text, updatedAt: Date.now() };
+      })
+    }));
+  }
+
   function addNote(note: Note) {
     setSnapshot((current) => ({ ...current, notes: [note, ...current.notes] }));
   }
@@ -207,6 +219,7 @@ export function useNotebook() {
     syncStatus,
     storageError,
     updateNote,
+    appendToNote,
     addNote,
     createFolder,
     renameFolder,

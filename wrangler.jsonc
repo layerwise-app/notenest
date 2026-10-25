@@ -14,6 +14,16 @@
       "database_id": "local"
     }
   ],
+  // Layerwise Storage. Local preview serves this binding through the
+  // `@layerwise/vite` Storage Worker. Published apps are bound to the
+  // project's Storage automatically.
+  "services": [
+    {
+      "binding": "STORAGE",
+      "service": "layerwise-storage",
+      "entrypoint": "ProjectStorage"
+    }
+  ],
   "vars": {
     "BETTER_AUTH_URL": "",
     "BETTER_AUTH_SECRET": ""

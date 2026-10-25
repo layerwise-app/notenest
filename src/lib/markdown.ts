@@ -1,6 +1,8 @@
 // A small, dependency-free Markdown parser that produces a typed tree.
 // Rendering happens in React (which escapes all text), and link targets go
 // through `safeUrl`, so note content can never inject markup or scripts.
+// Attached files only render from `/api/files/<uuid>` references (`fileId`).
+import { fileRefId } from './note-files.ts';
 import { normalizeTag, tagSource, wikiLinkSource } from './note-text.ts';
 
 export type Inline =
@@ -8,6 +10,8 @@ export type Inline =
   | { type: 'strong' | 'em' | 'del' | 'mark'; children: Inline[] }
   | { type: 'code'; text: string }
   | { type: 'link'; href: string; children: Inline[] }
+  | { type: 'image'; fileId: string; alt: string }
+  | { type: 'file'; fileId: string; children: Inline[] }
   | { type: 'wikilink'; target: string; label: string }
   | { type: 'tag'; tag: string; text: string }
   | { type: 'br' };
@@ -47,6 +51,7 @@ const INLINE_PATTERN = new RegExp(
   [
     '`(?<code>[^`\\n]+)`',
     wikiLinkSource('wiki', 'wikiLabel'),
+    '!\\[(?<imageAlt>[^\\]\\n]*)\\]\\((?<imageSrc>[^)\\s]+)(?:\\s+"[^"\\n]*")?\\)',
     '\\[(?<linkText>[^\\]\\n]+)\\]\\((?<linkHref>[^)\\s]+)(?:\\s+"[^"\\n]*")?\\)',
     '(?<url>https?:\\/\\/[^\\s<>()]*[^\\s<>().,;:!?\'"*_~])',
     '\\*\\*(?<strong>[^\\n]+?)\\*\\*',
@@ -69,6 +74,9 @@ export function parseInline(text: string): Inline[] {
     if (previous?.type === 'text') previous.text += value;
     else nodes.push({ type: 'text', text: value });
   };
+  const pushNodes = (children: Inline[]) => {
+    for (const child of children) child.type === 'text' ? pushText(child.text) : nodes.push(child);
+  };
 
   for (const match of text.matchAll(INLINE_PATTERN)) {
     const groups = match.groups ?? {};
@@ -81,11 +89,21 @@ export function parseInline(text: string): Inline[] {
     } else if (groups.wiki !== undefined) {
       const target = groups.wiki.trim();
       nodes.push({ type: 'wikilink', target, label: (groups.wikiLabel ?? target).trim() });
+    } else if (groups.imageSrc !== undefined) {
+      const fileId = fileRefId(groups.imageSrc);
+      if (fileId) nodes.push({ type: 'image', fileId, alt: groups.imageAlt.trim() });
+      else {
+        // Only attached files render as images; anything else reads as before.
+        pushText('!');
+        pushNodes(parseInline(match[0].slice(1)));
+      }
     } else if (groups.linkText !== undefined) {
       const href = safeUrl(groups.linkHref);
+      const fileId = href ? null : fileRefId(groups.linkHref);
       const children = parseInline(groups.linkText);
       if (href) nodes.push({ type: 'link', href, children });
-      else for (const child of children) child.type === 'text' ? pushText(child.text) : nodes.push(child);
+      else if (fileId) nodes.push({ type: 'file', fileId, children });
+      else pushNodes(children);
     } else if (groups.url !== undefined) {
       const href = safeUrl(groups.url);
       if (href) nodes.push({ type: 'link', href, children: [{ type: 'text', text: groups.url }] });
