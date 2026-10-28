@@ -1,15 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { NotesApp } from '~/components/notes/NotesApp';
+import { WorkspaceLayout } from '~/components/workspace/WorkspaceLayout';
 import { seo } from '~/utils/seo';
 
 export const Route = createFileRoute('/notes')({
   head: () => ({
     meta: [
       ...seo({
-        title: 'Notes — NoteNest',
-        description: 'Your NoteNest notebook. Works offline and syncs when you sign in.'
+        title: 'NoteNest',
+        description: 'Your NoteNest pages. Works offline and syncs when you sign in.'
       })
     ]
   }),
-  component: NotesApp
+  // Pages live in the browser (IndexedDB), so the workspace renders there.
+  ssr: false,
+  component: WorkspaceLayout
 });

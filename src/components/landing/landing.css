@@ -1,0 +1,65 @@
+/* Landing-only rules: animation keyframes and decorative covers for the mocks. */
+
+@keyframes nn-caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+}
+
+@keyframes nn-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A typing caret inside mock blocks. */
+.nn-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: -0.18em;
+  background: currentColor;
+  animation: nn-caret-blink 1.1s steps(1) infinite;
+}
+
+/* Menus in the mocks fade up when they change. */
+.nn-rise {
+  animation: nn-rise 220ms ease-out both;
+}
+
+/* Soft pastel mesh used as a page cover. */
+.nn-cover {
+  background:
+    radial-gradient(at 18% 30%, #bcd9f2 0, transparent 52%),
+    radial-gradient(at 78% 18%, #f3d3bd 0, transparent 55%),
+    radial-gradient(at 62% 95%, #cfe4cc 0, transparent 50%),
+    #eef0f3;
+}
+.nn-cover-warm {
+  background:
+    radial-gradient(at 20% 80%, #f6c9a8 0, transparent 55%),
+    radial-gradient(at 85% 25%, #f2e1a6 0, transparent 50%),
+    #f6ece2;
+}
+.dark .nn-cover,
+.dark .nn-cover-warm {
+  filter: brightness(0.62) saturate(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nn-caret,
+  .nn-rise {
+    animation: none;
+  }
+}

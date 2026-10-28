@@ -25,11 +25,11 @@ export const Route = createRootRouteWithContext<{
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { name: 'theme-color', content: '#fbf8f3' },
+      { name: 'theme-color', content: '#ffffff' },
       ...seo({
-        title: 'NoteNest — a calm Markdown notebook',
+        title: 'NoteNest — pages, blocks, and notes in one calm workspace',
         description:
-          'A Markdown notebook with tags, linked notes, and checklists. Works offline and syncs when you sign in.'
+          'A Notion-style workspace with nested pages, a block editor, slash commands, and rich media. Works offline and syncs when you sign in.'
       })
     ],
     links: [
@@ -73,7 +73,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <ThemeProvider
           attribute='class'
           defaultTheme='light'
-          enableSystem={false}
+          enableSystem
           disableTransitionOnChange
         >
           <TooltipProvider delayDuration={350}>

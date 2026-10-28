@@ -15,6 +15,8 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as NotesRouteImport } from './routes/notes'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as NotesIndexRouteImport } from './routes/notes.index'
+import { Route as NotesPageIdRouteImport } from './routes/notes.$pageId'
 import { Route as SignInOtpRouteImport } from './routes/sign-in_.otp'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiFilesIdRouteImport } from './routes/api/files/$id'
@@ -49,6 +51,16 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotesIndexRoute = NotesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => NotesRoute,
+} as any)
+const NotesPageIdRoute = NotesPageIdRouteImport.update({
+  id: '/$pageId',
+  path: '/$pageId',
+  getParentRoute: () => NotesRoute,
+} as any)
 const SignInOtpRoute = SignInOtpRouteImport.update({
   id: '/sign-in_/otp',
   path: '/sign-in/otp',
@@ -69,10 +81,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/notes/$pageId': typeof NotesPageIdRoute
   '/sign-in/otp': typeof SignInOtpRoute
+  '/notes/': typeof NotesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/files/$id': typeof ApiFilesIdRoute
 }
@@ -80,10 +94,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/notes': typeof NotesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/notes/$pageId': typeof NotesPageIdRoute
   '/sign-in/otp': typeof SignInOtpRoute
+  '/notes': typeof NotesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/files/$id': typeof ApiFilesIdRoute
 }
@@ -92,10 +107,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/notes/$pageId': typeof NotesPageIdRoute
   '/sign-in_/otp': typeof SignInOtpRoute
+  '/notes/': typeof NotesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/files/$id': typeof ApiFilesIdRoute
 }
@@ -108,7 +125,9 @@ export interface FileRouteTypes {
     | '/notes'
     | '/sign-in'
     | '/sign-up'
+    | '/notes/$pageId'
     | '/sign-in/otp'
+    | '/notes/'
     | '/api/auth/$'
     | '/api/files/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -116,10 +135,11 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/forgot-password'
-    | '/notes'
     | '/sign-in'
     | '/sign-up'
+    | '/notes/$pageId'
     | '/sign-in/otp'
+    | '/notes'
     | '/api/auth/$'
     | '/api/files/$id'
   id:
@@ -130,7 +150,9 @@ export interface FileRouteTypes {
     | '/notes'
     | '/sign-in'
     | '/sign-up'
+    | '/notes/$pageId'
     | '/sign-in_/otp'
+    | '/notes/'
     | '/api/auth/$'
     | '/api/files/$id'
   fileRoutesById: FileRoutesById
@@ -139,7 +161,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
-  NotesRoute: typeof NotesRoute
+  NotesRoute: typeof NotesRouteWithChildren
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   SignInOtpRoute: typeof SignInOtpRoute
@@ -191,6 +213,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notes/': {
+      id: '/notes/'
+      path: '/'
+      fullPath: '/notes/'
+      preLoaderRoute: typeof NotesIndexRouteImport
+      parentRoute: typeof NotesRoute
+    }
+    '/notes/$pageId': {
+      id: '/notes/$pageId'
+      path: '/$pageId'
+      fullPath: '/notes/$pageId'
+      preLoaderRoute: typeof NotesPageIdRouteImport
+      parentRoute: typeof NotesRoute
+    }
     '/sign-in_/otp': {
       id: '/sign-in_/otp'
       path: '/sign-in/otp'
@@ -215,11 +251,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface NotesRouteChildren {
+  NotesPageIdRoute: typeof NotesPageIdRoute
+  NotesIndexRoute: typeof NotesIndexRoute
+}
+
+const NotesRouteChildren: NotesRouteChildren = {
+  NotesPageIdRoute: NotesPageIdRoute,
+  NotesIndexRoute: NotesIndexRoute,
+}
+
+const NotesRouteWithChildren = NotesRoute._addFileChildren(NotesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
-  NotesRoute: NotesRoute,
+  NotesRoute: NotesRouteWithChildren,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   SignInOtpRoute: SignInOtpRoute,

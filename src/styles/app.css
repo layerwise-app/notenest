@@ -5,13 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-heading: var(--font-serif);
-  --font-serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Display', 'Segoe UI', Helvetica, 'Apple Color Emoji', Arial, sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --font-heading: var(--font-sans);
+  --font-serif: Lyon-Text, 'Newsreader', Georgia, ui-serif, serif;
+  --font-mono: 'JetBrains Mono', iawriter-mono, Nitti, Menlo, Courier, monospace;
   --color-paper: var(--paper);
   --color-highlight: var(--highlight);
   --color-ink-soft: var(--ink-soft);
+  --color-hover: var(--hover);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -52,80 +53,126 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Warm cream paper, near-black ink, deep plum accent. */
+/* Notion's neutrals: white paper, warm near-black ink, blue accent. */
 :root {
-  --background: #fbf8f3;
-  --foreground: #1e1a1d;
-  --paper: #fffdf9;
-  --ink-soft: #4a4246;
-  --highlight: #f3dcea;
-  --card: #fffdf9;
-  --card-foreground: #1e1a1d;
-  --popover: #fffdf9;
-  --popover-foreground: #1e1a1d;
-  --primary: #7a2e6b;
-  --primary-foreground: #fff8fc;
-  --secondary: #f2ece3;
-  --secondary-foreground: #2a2427;
-  --muted: #f2ece3;
-  --muted-foreground: #6f6569;
-  --accent: #f5e9f1;
-  --accent-foreground: #5c1f50;
-  --destructive: #b3352f;
-  --border: #e8e0d5;
-  --input: #ded5c9;
-  --ring: #7a2e6b;
-  --chart-1: #7a2e6b;
-  --chart-2: #a5578f;
-  --chart-3: #c98fb7;
-  --chart-4: #6f6569;
-  --chart-5: #2a2427;
-  --radius: 0.625rem;
-  --sidebar: #f5f0e8;
-  --sidebar-foreground: #2a2427;
-  --sidebar-primary: #7a2e6b;
-  --sidebar-primary-foreground: #fff8fc;
-  --sidebar-accent: #ebe3d8;
-  --sidebar-accent-foreground: #1e1a1d;
-  --sidebar-border: #e6ddd1;
-  --sidebar-ring: #7a2e6b;
+  --background: #ffffff;
+  --foreground: rgb(55 53 47);
+  --paper: #ffffff;
+  --ink-soft: rgb(55 53 47 / 0.75);
+  --highlight: rgb(35 131 226 / 0.14);
+  --hover: rgb(55 53 47 / 0.06);
+  --hover-strong: rgb(55 53 47 / 0.1);
+  --faint: rgb(55 53 47 / 0.45);
+  --card: #ffffff;
+  --card-foreground: rgb(55 53 47);
+  --popover: #ffffff;
+  --popover-foreground: rgb(55 53 47);
+  --primary: #2383e2;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(55 53 47 / 0.06);
+  --secondary-foreground: rgb(55 53 47);
+  --muted: rgb(55 53 47 / 0.06);
+  --muted-foreground: rgb(55 53 47 / 0.65);
+  --accent: rgb(55 53 47 / 0.06);
+  --accent-foreground: rgb(55 53 47);
+  --destructive: #eb5757;
+  --border: rgb(55 53 47 / 0.09);
+  --input: rgb(55 53 47 / 0.16);
+  --ring: #2383e2;
+  --chart-1: #2383e2;
+  --chart-2: #448361;
+  --chart-3: #d9730d;
+  --chart-4: #9065b0;
+  --chart-5: #787774;
+  --radius: 0.375rem;
+  --sidebar: #f8f8f7;
+  --sidebar-foreground: rgb(95 94 91);
+  --sidebar-primary: #2383e2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(55 53 47 / 0.06);
+  --sidebar-accent-foreground: rgb(55 53 47);
+  --sidebar-border: rgb(55 53 47 / 0.06);
+  --sidebar-ring: #2383e2;
+  --menu-shadow: rgb(15 15 15 / 0.05) 0 0 0 1px, rgb(15 15 15 / 0.1) 0 3px 6px, rgb(15 15 15 / 0.2) 0 9px 24px;
+
+  --text-gray: #787774;
+  --text-brown: #9f6b53;
+  --text-orange: #d9730d;
+  --text-yellow: #cb912f;
+  --text-green: #448361;
+  --text-blue: #337ea9;
+  --text-purple: #9065b0;
+  --text-pink: #c14c8a;
+  --text-red: #d44c47;
+  --bg-gray: #f1f1ef;
+  --bg-brown: #f4eeee;
+  --bg-orange: #fbecdd;
+  --bg-yellow: #fbf3db;
+  --bg-green: #edf3ec;
+  --bg-blue: #e7f3f8;
+  --bg-purple: #f6f3f9;
+  --bg-pink: #faf1f5;
+  --bg-red: #fdebec;
 }
 
 .dark {
-  --background: #171315;
-  --foreground: #efe8e3;
-  --paper: #1c1719;
-  --ink-soft: #cfc6c1;
-  --highlight: #4a2741;
-  --card: #1f1a1d;
-  --card-foreground: #efe8e3;
-  --popover: #221c20;
-  --popover-foreground: #efe8e3;
-  --primary: #d892c8;
-  --primary-foreground: #2a0f25;
-  --secondary: #2a2427;
-  --secondary-foreground: #efe8e3;
-  --muted: #262023;
-  --muted-foreground: #a69ca0;
-  --accent: #3a2335;
-  --accent-foreground: #f5d9ee;
-  --destructive: #ef7a6f;
-  --border: #322b2f;
-  --input: #3a3236;
-  --ring: #d892c8;
-  --chart-1: #d892c8;
-  --chart-2: #b06ea0;
-  --chart-3: #8a4f7d;
-  --chart-4: #a69ca0;
-  --chart-5: #efe8e3;
-  --sidebar: #1b1618;
-  --sidebar-foreground: #e4dcd7;
-  --sidebar-primary: #d892c8;
-  --sidebar-primary-foreground: #2a0f25;
-  --sidebar-accent: #2a2427;
-  --sidebar-accent-foreground: #efe8e3;
-  --sidebar-border: #2b2528;
-  --sidebar-ring: #d892c8;
+  --background: #191919;
+  --foreground: rgb(255 255 255 / 0.81);
+  --paper: #191919;
+  --ink-soft: rgb(255 255 255 / 0.6);
+  --highlight: rgb(35 131 226 / 0.22);
+  --hover: rgb(255 255 255 / 0.055);
+  --hover-strong: rgb(255 255 255 / 0.09);
+  --faint: rgb(255 255 255 / 0.3);
+  --card: #202020;
+  --card-foreground: rgb(255 255 255 / 0.81);
+  --popover: #252525;
+  --popover-foreground: rgb(255 255 255 / 0.81);
+  --primary: #2383e2;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(255 255 255 / 0.055);
+  --secondary-foreground: rgb(255 255 255 / 0.81);
+  --muted: rgb(255 255 255 / 0.055);
+  --muted-foreground: rgb(255 255 255 / 0.46);
+  --accent: rgb(255 255 255 / 0.055);
+  --accent-foreground: rgb(255 255 255 / 0.81);
+  --destructive: #eb5757;
+  --border: rgb(255 255 255 / 0.094);
+  --input: rgb(255 255 255 / 0.14);
+  --ring: #2383e2;
+  --chart-1: #2383e2;
+  --chart-2: #529e72;
+  --chart-3: #c77d48;
+  --chart-4: #9d68d3;
+  --chart-5: #9b9b9b;
+  --sidebar: #202020;
+  --sidebar-foreground: rgb(255 255 255 / 0.62);
+  --sidebar-primary: #2383e2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(255 255 255 / 0.055);
+  --sidebar-accent-foreground: rgb(255 255 255 / 0.81);
+  --sidebar-border: rgb(255 255 255 / 0.05);
+  --sidebar-ring: #2383e2;
+  --menu-shadow: rgb(255 255 255 / 0.094) 0 0 0 1px, rgb(0 0 0 / 0.3) 0 3px 6px, rgb(0 0 0 / 0.4) 0 9px 24px;
+
+  --text-gray: #9b9b9b;
+  --text-brown: #ba856f;
+  --text-orange: #c77d48;
+  --text-yellow: #ca984d;
+  --text-green: #529e72;
+  --text-blue: #5e87c9;
+  --text-purple: #9d68d3;
+  --text-pink: #d15796;
+  --text-red: #df5452;
+  --bg-gray: #2f2f2f;
+  --bg-brown: #4a3228;
+  --bg-orange: #5c3b23;
+  --bg-yellow: #564328;
+  --bg-green: #243d30;
+  --bg-blue: #143a4e;
+  --bg-purple: #3c2d49;
+  --bg-pink: #4e2c3c;
+  --bg-red: #522e2a;
 }
 
 @layer base {
@@ -143,7 +190,7 @@
     @apply bg-background text-foreground;
   }
   ::selection {
-    background: color-mix(in oklab, var(--primary) 22%, transparent);
+    background: rgb(35 131 226 / 0.28);
   }
 }
 
@@ -160,5 +207,102 @@
   /* Toasts are portaled outside the hidden app shell. */
   [data-sonner-toaster] {
     display: none !important;
+  }
+}
+
+/* Menus and popovers share Notion's soft shadow. */
+[data-slot='dropdown-menu-content'],
+[data-slot='dropdown-menu-sub-content'],
+[data-slot='popover-content'] {
+  border-radius: 10px;
+  box-shadow: var(--menu-shadow);
+  --tw-ring-shadow: 0 0 #0000;
+}
+[data-slot='dropdown-menu-item'],
+[data-slot='dropdown-menu-sub-trigger'],
+[data-slot='dropdown-menu-radio-item'] {
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+/* Notion dims behind dialogs without blurring. */
+[data-slot='dialog-overlay'],
+[data-slot='sheet-overlay'] {
+  background: rgb(15 15 15 / 0.25);
+  backdrop-filter: none;
+}
+
+/* Small shared pieces of the workspace UI (menus, buttons, inputs). */
+@layer components {
+  .notion-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    user-select: none;
+    transition: background 20ms ease-in;
+  }
+  .notion-button:hover {
+    background: var(--hover);
+  }
+  .notion-button:active {
+    background: var(--hover-strong);
+  }
+  .notion-icon-button {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    color: var(--muted-foreground);
+    transition: background 20ms ease-in;
+  }
+  .notion-icon-button:hover {
+    background: var(--hover);
+    color: var(--foreground);
+  }
+  .notion-input {
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--hover);
+    box-shadow: inset 0 0 0 1px var(--border);
+    outline: none;
+  }
+  .notion-input:focus {
+    box-shadow: inset 0 0 0 1px var(--ring), 0 0 0 2px rgb(35 131 226 / 0.25);
+  }
+  .notion-menu {
+    background: var(--popover);
+    color: var(--popover-foreground);
+    border-radius: 10px;
+    box-shadow: var(--menu-shadow);
+  }
+  .notion-menu-label {
+    padding: 8px 6px 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+  }
+  .notion-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+  }
+  .notion-menu-item:not([data-active]):hover,
+  .notion-menu-item[data-active='true'] {
+    background: var(--hover);
   }
 }
