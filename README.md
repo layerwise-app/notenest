@@ -1,15 +1,15 @@
+<a href="https://layerwise.app"><picture><source media="(prefers-color-scheme: dark)" srcset="https://layerwise.app/powered-by-dark.png"><img src="https://layerwise.app/powered-by.png" alt="Powered by Layerwise" width="174" height="28"></picture></a>
+
 # NoteNest
 
-<a href="https://layerwise.app">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://layerwise.app/powered-by-dark.png" />
-    <img src="https://layerwise.app/powered-by.png" alt="Powered by Layerwise" width="320" />
-  </picture>
-</a>
+NoteNest is a block-based notes workspace for people who want nested pages,
+a `/` command menu, and rich media in one calm place. Visitors can start
+writing at `/notes` without an account: pages live in the browser, and they
+sync across devices after signing in. Try the live demo at
+https://notenest.layerwise.site/.
 
-A Notion-style workspace: nested pages built from blocks, a `/` command menu,
-and rich media. Start writing at `/notes` without an account; pages live in
-the browser and sync across devices once you sign in.
+NoteNest was built with [Layerwise](https://layerwise.app), and you can open
+it in Layerwise to make your own version.
 
 ## Features
 
@@ -41,6 +41,26 @@ the browser and sync across devices once you sign in.
 - Local-first: pages are stored in IndexedDB. Signed-in users sync to D1
   (last write wins per page). Notes from the old Markdown notebook are
   converted to pages on first load, and folders become parent pages.
+
+## Customize it
+
+- Landing page copy and sections: `src/components/landing/` (`LandingHero.tsx`,
+  `FeatureSections.tsx` and the `feature-*.tsx` files, `LandingFooter.tsx`).
+- Page title and description: `src/routes/__root.tsx` and `src/routes/index.tsx`.
+- Colors and theme tokens: `src/styles/app.css` (`:root` for light, `.dark`
+  for dark). Block text and background colors are named in
+  `src/components/editor/colors.ts`; page covers are in
+  `src/components/workspace/covers.ts`.
+- Logo: `src/components/brand.tsx`; icons and the web manifest are in
+  `public/`.
+- The Getting started page and page templates: `src/lib/workspace/templates.ts`.
+- `/` menu items: `src/components/editor/menus/slash-items.tsx`.
+
+To add a page template, add its id to `TemplateId` and an entry to
+`PAGE_TEMPLATES` in `src/lib/workspace/templates.ts` with a `name`, `icon`,
+`description`, and a `build(date)` function that returns the page's title,
+icon, and editor content. It then appears on empty pages and in the sidebar's
+Templates menu.
 
 ## Routes
 
